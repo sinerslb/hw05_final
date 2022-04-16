@@ -1,0 +1,25 @@
+<!-- templates/posts/group_list.html --> 
+{% extends 'base.html' %}
+
+{% block title %}
+  <h1>{{ group }}</h1>
+{% endblock %}
+
+{% block content %}
+<!-- класс py-5 создает отступы сверху и снизу блока -->
+      <div class="container py-5">
+        <h1>Группа <b>{{ group }}</b></h1>
+        <p>
+          <p>{{ group.description }}</p>
+        </p>
+        {% for post in page_obj %}
+          <article>
+            {% include 'includes/post.html' %}            
+            <a href="{% url 'posts:post_detail' post.pk %}">Подробнее</a>
+            <!-- под последним постом нет линии -->
+            {% if not forloop.last %}<hr>{% endif %}
+          </article>
+        {% endfor %}
+        {% include 'includes/paginator.html' %} 
+      </div>  
+{% endblock %}
