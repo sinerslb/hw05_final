@@ -41,9 +41,10 @@ def group_posts(request, slug):
     paginator = Paginator(posts, POST_COUNT)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    context = {'group': group,
-               'page_obj': page_obj,
-               }
+    context = {
+        'group': group,
+        'page_obj': page_obj,
+    }
     return render(request, 'posts/group_list.html', context)
 
 
@@ -57,16 +58,14 @@ def profile(request, username):
     page_obj = paginator.get_page(page_number)
     following = Follow.objects.filter(
         user=request.user.id, author=author.id).exists()
-    if request.user.id != author.id:
-        its_not_me = True
-    else:
-        its_not_me = False
-    context = {'author': author,
-               'page_obj': page_obj,
-               'count': count,
-               'following': following,
-               'its_not_me': its_not_me,
-               }
+    its_not_me = request.user.id != author.id
+    context = {
+        'author': author,
+        'page_obj': page_obj,
+        'count': count,
+        'following': following,
+        'its_not_me': its_not_me,
+    }
     return render(request, 'posts/profile.html', context)
 
 
@@ -76,11 +75,12 @@ def post_detail(request, post_id):
     count_post = Post.objects.filter(author_id=post.author_id).count()
     comments = Comment.objects.filter(post=post_id)
     form = CommentForm(request.POST or None)
-    context = {'post': post,
-               'count': count_post,
-               'comments': comments,
-               'form': form,
-               }
+    context = {
+        'post': post,
+        'count': count_post,
+        'comments': comments,
+        'form': form,
+    }
     return render(request, 'posts/post_detail.html', context)
 
 
@@ -108,8 +108,9 @@ def post_edit(request, post_id):
         return redirect('posts:post_detail', post_id=post.id)
 
     context = {'is_edit': True}
-    form = PostForm(request.POST or None, files=request.FILES or None,
-                    instance=post)
+    form = PostForm(
+        request.POST or None, files=request.FILES or None, instance=post
+    )
 
     if request.method == 'POST':
         if form.is_valid():
@@ -155,12 +156,11 @@ def follow_index(request):
 def profile_follow(request, username):
     # Подписаться на автора
     author = get_object_or_404(User, username=username)
-    following = Follow.objects.filter(
-        user=request.user.id, author=author.id).exists()
     if request.user.id != author.id:
-        if not following:
-            Follow.objects.create(user=request.user,
-                                  author=author)
+        Follow.objects.get_or_create(
+            user=request.user,
+            author=author
+        )
 
     return redirect('posts:profile', username=username)
 
@@ -168,8 +168,8 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     # Дизлайк, отписка
-    author = get_object_or_404(User, username=username)
-    Follow.objects.filter(user=request.user.id,
-                          author=author.id).delete()
+    Follow.objects.filter(
+        user=request.user, author__username=username
+    ).delete()
 
     return redirect('posts:profile', username=username)

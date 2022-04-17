@@ -122,6 +122,35 @@ class PostCreateFormTests(TestCase):
             ).exists()
         )
 
+    def test_wrong_image(self):
+        """проверка, пользователь загрузил не картинку."""
+        small_txt = (b'\xCD\xE5\x20\xEA\xE0\xF0\xF2\xE8\xED\xEA\xE0')
+
+        # small_gif = ('Не картинка')
+        uploaded = SimpleUploadedFile(
+            name='small.txt',
+            content=small_txt,
+            content_type='image/gif'
+        )
+        form_data = {
+            'text': 'Тестовый текст',
+            'group': self.test_group.id,
+            'image': uploaded,
+        }
+        response = self.author_client.post(
+            reverse('posts:post_create'),
+            data=form_data,
+            follow=True
+        )
+
+        self.assertFormError(
+            response,
+            'form',
+            'image',
+            ('Загрузите правильное изображение. Файл, который вы загрузили,'
+             ' поврежден или не является изображением.')
+        )
+
     def test_not_autorized_user_cant_edit_post(self):
         """Неавторизованный пользователь не может редактировать записи."""
         # Отправляем POST-запрос, пользователь не авторизован

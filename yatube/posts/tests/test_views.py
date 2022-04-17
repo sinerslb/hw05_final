@@ -334,7 +334,7 @@ class TestFollowing(TestCase):
         self.follower_client.force_login(self.follower)
         cache.clear()
 
-    def test_create_delete_follow(self):
+    def test_create_follow(self):
         """Проверка возможности подписки/отписки для авторизованного
         пользователя.
         """
@@ -346,9 +346,11 @@ class TestFollowing(TestCase):
         self.assertTrue(
             Follow.objects.filter(
                 user=self.follower, author=self.author
-            ).exists(),
-            'Подписки не создаются'
+            ).exists()
         )
+
+    def test_delete_follow(self):
+        """Проверка удаления подписки."""
 
         self.follower_client.post(
             reverse('posts:profile_unfollow',
@@ -358,8 +360,7 @@ class TestFollowing(TestCase):
         self.assertFalse(
             Follow.objects.filter(
                 user=self.follower, author=self.author
-            ).exists(),
-            'Подписки не удаляются'
+            ).exists()
         )
 
     def test_followers_see_post(self):

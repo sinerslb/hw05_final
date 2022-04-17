@@ -7,24 +7,61 @@ app_name = 'posts'
 
 urlpatterns = [
     # Главная страница
-    path('', views.index, name='index'),
+    path(
+        '',
+        views.index,
+        name='index'
+    ),
     # Страница со списком групп
-    path('group/<slug:slug>/', views.group_posts, name='group_page'),
+    path(
+        'group/<slug:slug>/',
+        views.group_posts,
+        name='group_page'
+    ),
     # Профайл пользователя
-    path('profile/<str:username>/', views.profile, name='profile'),
+    path(
+        'profile/<str:username>/',
+        views.profile,
+        name='profile'
+    ),
     # Просмотр записи
-    path('posts/<int:post_id>/', views.post_detail, name='post_detail'),
+    path(
+        'posts/<int:post_id>/',
+        views.post_detail,
+        name='post_detail'
+    ),
     # Новая запись
-    path('create/', views.post_create, name='post_create'),
+    path(
+        'create/',
+        views.post_create,
+        name='post_create'
+    ),
     # Редактированние записи
-    path('posts/<post_id>/edit/', views.post_edit, name='post_edit'),
+    path(
+        'posts/<post_id>/edit/',
+        views.post_edit,
+        name='post_edit'
+    ),
     # Комментарии поста
-    path('posts/<int:post_id>/comment/',
-         views.add_comment, name='add_comment'),
+    path(
+        'posts/<int:post_id>/comment/',
+        views.add_comment,
+        name='add_comment'
+    ),
     # Подписка на авторов
-    path('follow/', views.follow_index, name='follow_index'),
-    path('profile/<str:username>/follow/',
-         views.profile_follow, name='profile_follow'),
-    path('profile/<str:username>/unfollow/',
-         views.profile_unfollow, name='profile_unfollow'),
+    path(
+        'follow/',
+        views.follow_index,
+        name='follow_index'
+    ),
+    path(
+        'profile/<str:username>/follow/',
+        views.profile_follow,
+        name='profile_follow'
+    ),
+    path(
+        'profile/<str:username>/unfollow/',
+        views.profile_unfollow,
+        name='profile_unfollow'
+    ),
 ]

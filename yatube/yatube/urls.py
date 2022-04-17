@@ -28,7 +28,7 @@ urlpatterns = [
 ]
 
 handler404 = 'core.views.page_not_found'
-handler403 = 'core.views.csrf_failure'
+handler403 = 'core.views.handler403'
 handler500 = 'core.views.handler500'
 
 if settings.DEBUG:
