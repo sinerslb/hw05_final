@@ -14,19 +14,19 @@ User = get_user_model()
 POST_COUNT: int = 10
 
 
+def pagination(request, post_list):
+    """Пагинатор."""
+    paginator = Paginator(post_list, POST_COUNT)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return page_obj
+
+
 def index(request):
     """Wiew функция главной страницы."""
 
-    post_list = Post.objects.all()
-    # Показывать по 10 записей на странице.
-    paginator = Paginator(post_list, POST_COUNT)
-
-    # Из URL извлекаем номер запрошенной страницы - это значение параметра page
-    page_number = request.GET.get('page')
-
-    # Получаем набор записей для страницы с запрошенным номером
-    page_obj = paginator.get_page(page_number)
-    # Отдаем в словаре контекста
+    page_obj = pagination(request, Post.objects.all())
     context = {
         'page_obj': page_obj,
     }
@@ -37,10 +37,7 @@ def group_posts(request, slug):
     """View функция постов выбранной группы."""
 
     group = get_object_or_404(Group, slug=slug)
-    posts = group.posts.all()
-    paginator = Paginator(posts, POST_COUNT)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = pagination(request, group.posts.all())
     context = {
         'group': group,
         'page_obj': page_obj,
@@ -49,13 +46,12 @@ def group_posts(request, slug):
 
 
 def profile(request, username):
-    # Здесь код запроса к модели и создание словаря контекста
+    """Профиль пользователя, со всеми его постами."""
+
     author = get_object_or_404(User, username=username)
     posts = author.posts.all()
-    paginator = Paginator(posts, POST_COUNT)
-    count = paginator.count
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    count = posts.count()
+    page_obj = pagination(request, posts)
     following = Follow.objects.filter(
         user=request.user.id, author=author.id).exists()
     its_not_me = request.user.id != author.id
@@ -70,7 +66,7 @@ def profile(request, username):
 
 
 def post_detail(request, post_id):
-    # Здесь код запроса к модели и создание словаря контекста
+    """Подробности поста, с комментариями."""
     post = get_object_or_404(Post, id=post_id)
     count_post = Post.objects.filter(author_id=post.author_id).count()
     comments = Comment.objects.filter(post=post_id)
@@ -129,6 +125,7 @@ def post_edit(request, post_id):
 
 @login_required
 def add_comment(request, post_id):
+    """Добавление комментария к посту."""
     post = get_object_or_404(Post, id=post_id)
     form = CommentForm(request.POST or None)
     if form.is_valid():
@@ -141,11 +138,9 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    authors = request.user.follower.values_list('author', flat=True)
-    post_list = Post.objects.filter(author__in=authors)
-    paginator = Paginator(post_list, POST_COUNT)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    """Все посты авторов, на которых подписан пользователь."""
+    post_list = Post.objects.filter(author__following__user=request.user)
+    page_obj = pagination(request, post_list)
     context = {
         'page_obj': page_obj,
     }
@@ -154,7 +149,7 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-    # Подписаться на автора
+    """Подписка на автора."""
     author = get_object_or_404(User, username=username)
     if request.user.id != author.id:
         Follow.objects.get_or_create(
@@ -167,9 +162,10 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    # Дизлайк, отписка
+    """Отписка от автора."""
     Follow.objects.filter(
-        user=request.user, author__username=username
+        user=request.user,
+        author__username=username
     ).delete()
 
     return redirect('posts:profile', username=username)

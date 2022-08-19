@@ -1,6 +1,7 @@
 <!-- templates/posts/index.html --> 
 {% extends 'base.html' %}
 
+
 {% block title %}
   Последние обновления на сайте
 {% endblock %}
@@ -8,6 +9,7 @@
 {% block content %}
       <!-- класс py-5 создает отступы сверху и снизу блока -->
       <div class="container py-5">
+        
         {% include 'includes/switcher.html' %}
         <h1>Мои подписки</h1>
         {% for post in page_obj %}

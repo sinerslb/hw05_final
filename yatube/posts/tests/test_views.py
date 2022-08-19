@@ -335,9 +335,7 @@ class TestFollowing(TestCase):
         cache.clear()
 
     def test_create_follow(self):
-        """Проверка возможности подписки/отписки для авторизованного
-        пользователя.
-        """
+        """Проверка подписки для авторизованного пользователя."""
         self.follower_client.post(
             reverse('posts:profile_follow',
                     kwargs={'username': self.author.username}),
@@ -352,11 +350,17 @@ class TestFollowing(TestCase):
     def test_delete_follow(self):
         """Проверка удаления подписки."""
 
+        Follow.objects.create(
+            user=self.follower,
+            author=self.author
+        )
+
         self.follower_client.post(
             reverse('posts:profile_unfollow',
                     kwargs={'username': self.author.username}),
             follow=True,
         )
+
         self.assertFalse(
             Follow.objects.filter(
                 user=self.follower, author=self.author

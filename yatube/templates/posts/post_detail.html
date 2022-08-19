@@ -30,6 +30,16 @@
             все посты пользователя
           </a>
         </li>
+        &nbsp;&nbsp;&nbsp;
+        <li>
+          {% if post.author.id == user.id %}
+            <a
+              class="btn btn-primary"
+              href="{% url 'posts:post_edit' post.id %}">
+              Редактировать запись
+            </a>
+          {% endif %}
+        </li>          
       </ul>
     </aside>
     <article class="col-12 col-md-9">
